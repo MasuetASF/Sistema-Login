@@ -1,0 +1,128 @@
+import sqlite3
+
+#TODO: Sistema de acesso com login/senha
+#Menu principal:
+#   1.Criar cadastro --> login = input(
+
+
+class SistemaLogin:
+    def __init__(self):
+        self.connector = sqlite3.connect('aula_01_09.db')
+        self.cursor = self.connector.cursor()
+
+    def cadastrar(self, login, senha):
+        self.cursor.execute('''
+            INSERT INTO usuarios (login, senha) 
+            VALUES (?, ?)
+        ''', (login, senha))
+        self.connector.commit()
+
+
+    def acessar(self, login, senha):
+        self.cursor.execute('''
+            SELECT * FROM usuarios 
+            WHERE login = ? AND senha = ?
+            ''', (login, senha))
+        result = self.cursor.fetchone()
+        if result:
+            print('Login realizado com sucesso!')
+        else:
+            print('Login ou senha incorretos.')
+
+    def alterar(self, login, nova_senha):
+        self.cursor.execute('''
+            SELECT * FROM usuarios 
+            WHERE login = ? 
+        ''', (login,))
+        result = self.cursor.fetchone()
+        if result:
+            self.cursor.execute('''
+                UPDATE usuarios
+                SET senha = ?
+                WHERE login = ?
+             ''',(nova_senha, login))
+            self.connector.commit()
+            print('Senha alterada com sucesso!')
+        else:
+            print('Login não encontrado.')
+
+def main():
+    flag = True
+    sistema = SistemaLogin()
+    while flag == True:
+        print('''
+            -- MENU DE CADASTRO/ACESSO DE USUARIOS -- \n
+            1- Cadastrar Usuario\n
+            2- Acessar Usuario\n
+            3- Alterar Senha\n
+            4- Sair do menu        
+        ''')
+        opcao = int(input('Digite a opção: '))
+
+        match opcao:
+            case 1:
+                login = input('Login: ')
+                senha = input('Senha: ')
+                sistema.cadastrar(login, senha)
+
+            case 2:
+                login = input('Login: ')
+                senha = input('Senha: ')
+                sistema.acessar(login, senha)
+
+            case 3:
+                login = input('Login: ')
+                nova_senha = input('Nova senha: ')
+                sistema.alterar(login, nova_senha)
+
+            case 4:
+                flag == False
+                sistema.connector.close()
+
+
+if __name__ == '__main__':
+    main()
+
+#connector = sqlite3.connect('aula_01_09.db')
+#cursor = connector.cursor()
+
+#Criar tabela
+#cursor.execute('''
+#    CREATE TABLE IF NOT EXISTS usuarios (
+#        id INTEGER PRIMARY KEY AUTOINCREMENT,
+#        login TEXT,
+#        senha TEXT )
+#        ''')
+
+#Criar linhas
+#cursor.execute('''
+#    INSERT INTO usuarios (login, senha)
+#    VALUES ("fic_python", "dev2025")
+#''')
+
+#Criar varias linhas
+#cadastro = [("login1","senha1"),("login2","senha2"), ("login3","senha3")]
+#cursor.executemany('''
+#    INSERT INTO usuarios (login, senha)
+#    VALUES (?, ?)
+#    ''', cadastro)
+
+#Atualizar uma linha
+#cursor.execute('''
+#    UPDATE usuarios
+#    SET senha = ?
+#    WHERE login = ?
+#''', ('senha11', 'login1'))
+
+#Realizar queries
+#cursor.execute('''
+#    SELECT id,login
+#    FROM usuarios
+#''')
+
+#results = cursor.fetchall()
+#for result in results:
+#    print(result)
+
+#connector.commit()
+#connector.close()
